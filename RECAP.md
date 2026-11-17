@@ -321,3 +321,10 @@ small abstractions rather than scattering `cfg` checks through gameplay code.
 
 - VitaSDK AUR build failed during prepare() (patch hunk failure); manual installation required.
 - devkitPro not installed; AUR packages unavailable/broken in this environment.
+
+
+## Native toolchain verification
+
+- devkitPro installed at /opt/devkitpro; `powerpc-eabi-gcc` verified; WUT links successfully.
+- VitaSDK installed at /opt/vitasdk; `arm-vita-eabi-gcc` verified.
+- No Rust target exists for powerpc-eabi or arm-vita-eabi in this toolchain; native Wii U/Vita frontends must be implemented in C/C++ (or a Rust core compiled via a compatible target, which is not currently available). flappy-core remains reusable as pure logic but cannot be compiled directly for these targets without a Rust target or FFI bridge.
