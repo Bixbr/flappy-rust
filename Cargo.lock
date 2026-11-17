@@ -117,11 +117,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "flappy-rust"
+name = "flappy-app"
 version = "0.1.0"
 dependencies = [
+ "flappy-core",
  "macroquad",
 ]
+
+[[package]]
+name = "flappy-core"
+version = "0.1.0"
 
 [[package]]
 name = "flate2"
