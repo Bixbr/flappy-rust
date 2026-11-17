@@ -328,3 +328,12 @@ small abstractions rather than scattering `cfg` checks through gameplay code.
 - devkitPro installed at /opt/devkitpro; `powerpc-eabi-gcc` verified; WUT links successfully.
 - VitaSDK installed at /opt/vitasdk; `arm-vita-eabi-gcc` verified.
 - No Rust target exists for powerpc-eabi or arm-vita-eabi in this toolchain; native Wii U/Vita frontends must be implemented in C/C++ (or a Rust core compiled via a compatible target, which is not currently available). flappy-core remains reusable as pure logic but cannot be compiled directly for these targets without a Rust target or FFI bridge.
+
+
+## Vita toolchain verification
+
+- Nightly Rust + rust-src installed.
+- Target `armv7-sony-vita-newlibeabihf` builds successfully with `-Z build-std=core,alloc,panic_abort`.
+- cargo-vita installed.
+- VitaSDK verified.
+- Minimal Rust binary compiled for Vita.
