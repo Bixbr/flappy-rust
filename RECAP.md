@@ -311,7 +311,7 @@ small abstractions rather than scattering `cfg` checks through gameplay code.
 ### Platform status
 
 - Linux: supported and verified.
-- Android: no NDK/SDK toolchain available in this environment; not built.
+- Android: NDK r30 and cargo-ndk installed; `cargo ndk -t arm64-v8a` produces libflappy_app.so successfully. Full APK packaging pending Gradle project wiring.
 - Web: wasm32 target and wasm-bindgen installed; `cargo build -p flappy-app --target wasm32-unknown-unknown` succeeds.
 - PlayStation Vita: rust-vita/VitaSDK not available; not built.
 - Wii U: devkitPro/devkitPPC not available; not built.
