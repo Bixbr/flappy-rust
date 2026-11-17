@@ -315,3 +315,9 @@ small abstractions rather than scattering `cfg` checks through gameplay code.
 - Web: wasm32 target and wasm-bindgen installed; `cargo build -p flappy-app --target wasm32-unknown-unknown` succeeds.
 - PlayStation Vita: rust-vita/VitaSDK not available; not built.
 - Wii U: devkitPro/devkitPPC not available; not built.
+
+
+## Toolchain installation notes
+
+- VitaSDK AUR build failed during prepare() (patch hunk failure); manual installation required.
+- devkitPro not installed; AUR packages unavailable/broken in this environment.
