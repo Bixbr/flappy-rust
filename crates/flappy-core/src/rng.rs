@@ -11,6 +11,7 @@ impl Rng {
         }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> i32 {
         self.z = 36969i32
             .wrapping_mul(self.z & 0xffff)

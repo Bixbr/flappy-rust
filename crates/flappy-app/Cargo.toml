@@ -1,3 +1,7 @@
+[lib]
+name = "flappy_app"
+crate-type = ["cdylib", "rlib"]
+
 [package]
 name = "flappy-app"
 version = "0.1.0"

@@ -1,0 +1,12 @@
+cargo:rustc-link-search=native=/opt/vitasdk/arm-vita-eabi/lib
+cargo:rustc-link-lib=static=vita2d
+cargo:rustc-link-lib=static=png
+cargo:rustc-link-lib=static=z
+cargo:rustc-link-lib=dylib=m
+cargo:rustc-link-lib=dylib=SceCtrl_stub
+cargo:rustc-link-lib=dylib=SceDisplay_stub
+cargo:rustc-link-lib=dylib=SceGxm_stub
+cargo:rustc-link-lib=dylib=SceAppMgr_stub
+cargo:rustc-link-lib=dylib=SceCommonDialog_stub
+cargo:rustc-link-lib=dylib=SceTouch_stub
+cargo:rustc-link-lib=dylib=ScePower_stub

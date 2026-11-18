@@ -1,0 +1,23 @@
+[workspace]
+
+[package]
+name = "flappy-vita"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[package.metadata.vita]
+title_id = "FLAP00001"
+title_name = "Flappy Rust"
+
+[dependencies]
+flappy-core = { path = "../../crates/flappy-core" }
+
+[[bin]]
+name = "flappy-vita"
+path = "src/main.rs"

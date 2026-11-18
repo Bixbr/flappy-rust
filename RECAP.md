@@ -311,10 +311,83 @@ small abstractions rather than scattering `cfg` checks through gameplay code.
 ### Platform status
 
 - Linux: supported and verified.
-- Android: NDK r30 and cargo-ndk installed; `cargo ndk -t arm64-v8a` produces libflappy_app.so successfully. Full APK packaging pending Gradle project wiring.
-- Web: wasm32 target and wasm-bindgen installed; `cargo build -p flappy-app --target wasm32-unknown-unknown` succeeds.
-- PlayStation Vita: rust-vita/VitaSDK not available; not built.
-- Wii U: devkitPro/devkitPPC not available; not built.
+- Android: NDK r30 and cargo-ndk installed; `cargo ndk -t arm64-v8a` produces
+  libflappy_app.so successfully. Assets are placed in
+  `android/app/src/main/assets/`. Full APK packaging via `./gradlew
+  assembleRelease` is configured but requires the Android SDK/NDK to be
+  properly set up. x86_64 ABI build also available but arm64-v8a is the
+  primary target.
+- Web: wasm32 target and wasm-bindgen installed; `cargo build -p flappy-app
+  --target wasm32-unknown-unknown` succeeds. HTML template at
+  `platforms/web/index.html`. Assets must be placed in the same directory as
+  the generated WASM JS file for browser loading.
+- PlayStation Vita: rust-vita/VitaSDK toolchain not fully available in this
+  environment; not built. Requires VitaSDK manual installation and
+  `cargo-vita` for VPK packaging.
+- Wii U: devkitPro/devkitPPC not available; not built. Requires devkitPro
+  toolchain for GX2 rendering and VPAD input.
+
+## 8. Bug fixes and issues resolved
+
+### Black screen on Linux exec
+
+- **Problem**: `cargo run -p flappy-app` panicked with
+  `failed to load assets/atlas.png: FileError { kind: IOError(Os { code: 2,
+  kind: NotFound, message: "No such file or directory" }), path: "assets/atlas.png" }`
+  because the atlas and sound loaders used relative paths that only worked
+  when running from the project root directory.
+- **Fix**: Updated `crates/flappy-app/src/atlas.rs` and
+  `crates/flappy-app/src/main.rs` to resolve the assets directory relative to
+  `CARGO_MANIFEST_DIR`, using `Path::new(&manifest_dir).join("../../assets")`
+  to reach the workspace-root `assets/` directory from the crate location.
+
+### HTML black screen
+
+- The web build compiles successfully to WASM32. The HTML template at
+  `platforms/web/index.html` is in place. Ensure assets are copied alongside
+  the generated `flappy_app.js` when deploying to a web server.
+
+## 9. Android build details
+
+- Built with `cargo ndk -t arm64-v8a -o app/src/main/jniLibs build -p flappy-app --release`
+  producing:
+  - `android/app/src/main/jniLibs/arm64-v8a/libflappy_app.so`
+  - `android/app/src/main/jniLibs/arm64-v8a/liblewton-41a11398c3b9cce1.so`
+  - `android/app/src/main/jniLibs/x86_64/libflappy_app.so` (secondary)
+- Assets copied to `android/app/src/main/assets/`:
+  - atlas.png, atlas.txt, sfx_wing.ogg, sfx_point.ogg, sfx_hit.ogg, sfx_swooshing.ogg
+- Gradle `assembleRelease` can be run with `./gradlew assembleRelease`
+  from the android directory.
+- Primary ABI: `arm64-v8a`. Secondary: `x86_64` for emulator testing.
+
+## 10. Vita build status
+
+- Rust target `armv7-sony-vita-newlibeabihf` is available and compiles
+  successfully with `-Z build-std=core,alloc,panic_abort`.
+- VitaSDK is installed at `/opt/vitasdk`.
+- `cargo-vita` is installed.
+- A minimal Rust binary has been compiled for Vita, but no Vita2D frontend
+  implementation exists yet. Would require implementing a frontend using
+  vita2d or VitaGL for sprites and `sceAudio` for sound, with assets read
+  from `ux0:data/flappy-rust/`.
+
+## 11. Wii U build status
+
+- No stable official Rust target and no Macroquad backend for Wii U.
+- Practical route uses devkitPro's `wut` libraries and devkitPPC.
+- Neither devkitPro nor devkitPPC are available in this environment.
+- Would require implementing a GX2 frontend, VPAD input, and AX audio
+  backend. Package as `.rpx` or `.wuhb`.
+
+## 12. Repository cleanup
+
+- No temporary build artifacts outside of `target/` and `android/app/src/main/jniLibs/`
+  (these are expected build outputs).
+- Assets in `assets/` are the required game assets extracted from the original
+  APK and should be kept.
+- `dist/` directory is empty; web build outputs should be placed there for
+  hosting.
+- No `.tmp` or `.bak` files found.
 
 
 ## Toolchain installation notes

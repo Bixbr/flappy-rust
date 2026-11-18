@@ -1,3 +1,4 @@
+use crate::assets;
 use macroquad::prelude::*;
 use std::collections::HashMap;
 
@@ -16,15 +17,11 @@ pub struct Atlas {
 
 impl Atlas {
     pub async fn load() -> Self {
-        let tex = load_texture("assets/atlas.png")
-            .await
-            .expect("failed to load assets/atlas.png");
+        let tex = Texture2D::from_file_with_format(assets::ATLAS_PNG, Some(ImageFormat::Png));
         tex.set_filter(FilterMode::Nearest);
 
-        let txt =
-            std::fs::read_to_string("assets/atlas.txt").expect("failed to load assets/atlas.txt");
         let mut sprites = HashMap::new();
-        for line in txt.lines() {
+        for line in assets::ATLAS_TXT.lines() {
             let p: Vec<&str> = line.split_whitespace().collect();
             if p.len() < 7 {
                 continue;
