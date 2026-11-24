@@ -67,3 +67,19 @@ Desktop.ini
 /save/
 /screenshots/
 /recordings/
+
+# Documentation (local)
+/Docs/
+
+# Platform build output
+/platforms/*/target/
+/platforms/wiiu/build/
+/platforms/wiiu/*.wuhb
+/android/app/build/
+/android/.gradle/
+/android/.cxx/
+/web-build/
+/builds/
+/dist/
+/target/
+/releases/

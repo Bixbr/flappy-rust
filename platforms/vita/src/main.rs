@@ -33,8 +33,8 @@ const BIRD_NAMES: [[&str; 3]; 3] = [
     ["bird2_0", "bird2_1", "bird2_2"],
 ];
 const FONT_NAMES: [&str; 10] = [
-    "font_048", "font_049", "font_050", "font_051", "font_052", "font_053", "font_054",
-    "font_055", "font_056", "font_057",
+    "font_048", "font_049", "font_050", "font_051", "font_052", "font_053", "font_054", "font_055",
+    "font_056", "font_057",
 ];
 const NUMBER_NAMES: [&str; 10] = [
     "number_score_00",
@@ -100,6 +100,8 @@ extern "C" {
     fn vita2d_end_drawing();
     fn vita2d_swap_buffers();
     fn vita2d_set_clear_color(color: u32);
+    fn vita2d_enable_clipping();
+    fn vita2d_set_clip_rectangle(x_min: c_int, y_min: c_int, x_max: c_int, y_max: c_int);
     fn vita2d_draw_rectangle(x: f32, y: f32, w: f32, h: f32, color: u32);
     fn vita2d_load_PNG_buffer(buffer: *const c_void) -> *mut c_void;
     fn vita2d_texture_set_filters(texture: *mut c_void, min: c_int, mag: c_int);
@@ -164,8 +166,8 @@ unsafe fn draw_sprite(
     if rotation != 0.0 {
         vita2d_draw_texture_part_tint_scale_rotate(
             tex,
-            sx,
-            sy,
+            sx + r.w * SCALE * 0.5,
+            sy + r.h * SCALE * 0.5,
             r.x,
             r.y,
             r.w,
@@ -176,9 +178,7 @@ unsafe fn draw_sprite(
             color,
         );
     } else {
-        vita2d_draw_texture_tint_part_scale(
-            tex, sx, sy, r.x, r.y, r.w, r.h, SCALE, SCALE, color,
-        );
+        vita2d_draw_texture_tint_part_scale(tex, sx, sy, r.x, r.y, r.w, r.h, SCALE, SCALE, color);
     }
 }
 
@@ -264,7 +264,15 @@ unsafe fn draw_scene(g: &Game, tex: *const c_void, atlas: &AtlasMap) {
 
     if g.menu {
         let title_w = atlas.rect("title").w;
-        draw_sprite(tex, atlas, "title", (288.0 - title_w) / 2.0, 150.0, 0.0, 1.0);
+        draw_sprite(
+            tex,
+            atlas,
+            "title",
+            (288.0 - title_w) / 2.0,
+            150.0,
+            0.0,
+            1.0,
+        );
 
         let name = BIRD_NAMES[g.bird.variant as usize][g.bird.frame_index() as usize];
         draw_sprite(
@@ -319,15 +327,7 @@ unsafe fn draw_scene(g: &Game, tex: *const c_void, atlas: &AtlasMap) {
             alpha,
         );
         let w = atlas.rect("tutorial").w;
-        draw_sprite(
-            tex,
-            atlas,
-            "tutorial",
-            (288.0 - w) / 2.0,
-            220.0,
-            0.0,
-            alpha,
-        );
+        draw_sprite(tex, atlas, "tutorial", (288.0 - w) / 2.0, 220.0, 0.0, alpha);
     }
 
     if g.menu {
@@ -379,15 +379,7 @@ unsafe fn draw_scene(g: &Game, tex: *const c_void, atlas: &AtlasMap) {
 
     if g.panel.visible {
         let p = &g.panel;
-        draw_sprite(
-            tex,
-            atlas,
-            "score_panel",
-            p.x as f32,
-            p.y as f32,
-            0.0,
-            1.0,
-        );
+        draw_sprite(tex, atlas, "score_panel", p.x as f32, p.y as f32, 0.0, 1.0);
         draw_number(tex, atlas, p.display, p.x + 210, p.y + 36);
         draw_number(tex, atlas, p.best, p.x + 210, p.y + 78);
         if p.new_badge {
@@ -444,7 +436,12 @@ unsafe fn draw_scene(g: &Game, tex: *const c_void, atlas: &AtlasMap) {
             0.0,
             288.0 * SCALE,
             512.0 * SCALE,
-            rgba(255, 255, 255, (g.flash.value.clamp(0.0, 1.0) * 255.0) as u32),
+            rgba(
+                255,
+                255,
+                255,
+                (g.flash.value.clamp(0.0, 1.0) * 255.0) as u32,
+            ),
         );
     }
 }
@@ -472,10 +469,7 @@ pub extern "C" fn main() -> c_int {
 
         loop {
             let mut pad: SceCtrlData = zeroed();
-            let mut dbg = 0u32;
-        let mut frames = 0u32;
             if sceCtrlPeekBufferPositive(0, &mut pad, 1) > 0 {
-                dbg = pad.buttons;
                 let pressed = pad.buttons & !prev_buttons;
                 prev_buttons = pad.buttons;
                 if pressed & (SCE_CTRL_CROSS | SCE_CTRL_START | SCE_CTRL_UP | SCE_CTRL_RTRIGGER)
@@ -488,10 +482,8 @@ pub extern "C" fn main() -> c_int {
                     }
                 }
                 if pressed & SCE_CTRL_CIRCLE != 0
-                    || (pad.buttons & SCE_CTRL_SELECT != 0
-                        && pad.buttons & SCE_CTRL_RTRIGGER != 0)
+                    || (pad.buttons & SCE_CTRL_SELECT != 0 && pad.buttons & SCE_CTRL_RTRIGGER != 0)
                 {
-                    // reserved
                 }
             }
             let mut touch: SceTouchData = zeroed();
@@ -516,23 +508,19 @@ pub extern "C" fn main() -> c_int {
             }
 
             let events = game.take_events();
-            let _ = events; // Audio output is not wired up on this backend.
+            let _ = events;
             game.tick();
 
             vita2d_start_drawing();
             vita2d_clear_screen();
-            draw_scene(&game, tex as *const c_void, &atlas);
-            if dbg != 0 {
-                vita2d_draw_rectangle(OFFSET_X, 0.0, 20.0, 20.0, rgba(255, 0, 0, 255));
-            }
-            frames = frames.wrapping_add(1);
-            vita2d_draw_rectangle(
-                OFFSET_X,
-                530.0,
-                (frames % 200) as f32,
-                6.0,
-                rgba(0, 255, 0, 255),
+            vita2d_enable_clipping();
+            vita2d_set_clip_rectangle(
+                OFFSET_X as c_int,
+                0,
+                (OFFSET_X + 288.0 * SCALE) as c_int,
+                (512.0 * SCALE) as c_int,
             );
+            draw_scene(&game, tex as *const c_void, &atlas);
             vita2d_end_drawing();
             vita2d_swap_buffers();
             sceDisplayWaitVblankStart();
@@ -548,12 +536,6 @@ extern "C" {
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     unsafe {
-        vita2d_start_drawing();
-        vita2d_clear_screen();
-        vita2d_draw_rectangle(0.0, 0.0, 960.0, 544.0, rgba(255, 0, 0, 255));
-        vita2d_end_drawing();
-        vita2d_swap_buffers();
-        sceDisplayWaitVblankStart();
         sceKernelExitProcess(1);
     }
     loop {}

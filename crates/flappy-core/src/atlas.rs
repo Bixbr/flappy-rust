@@ -1,5 +1,3 @@
-//! Sprite atlas metadata parser shared by the native frontends.
-
 pub const ATLAS_SIZE: f32 = 1024.0;
 pub const MAX_SPRITES: usize = 96;
 

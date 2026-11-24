@@ -7,7 +7,7 @@ use macroquad::prelude::*;
 use rng::Rng;
 
 // ---------------------------------------------------------------------------
-// Game constants (exactly as in the decompiled com.dotgears classes)
+// Game constants
 // ---------------------------------------------------------------------------
 const VW: u32 = 288;
 const VH: u32 = 512;
@@ -38,7 +38,7 @@ const PANEL_H: i32 = 126;
 const PANEL_FINAL_Y: i32 = (512 - PANEL_H) / 2;
 
 // ---------------------------------------------------------------------------
-// Tween / animation helpers
+// Tween helpers
 // ---------------------------------------------------------------------------
 fn ease_out_cubic(t: f32) -> f32 {
     let u = 1.0 - t;
@@ -156,7 +156,7 @@ impl Anim {
 }
 
 // ---------------------------------------------------------------------------
-// Timers / sounds
+// Timers sounds
 // ---------------------------------------------------------------------------
 #[derive(Clone, Copy)]
 enum TimerAction {
@@ -341,7 +341,7 @@ impl Bird {
 }
 
 // ---------------------------------------------------------------------------
-// Ready overlay (com.dotgears.flappy.f)
+// Ready overlay
 // ---------------------------------------------------------------------------
 struct Ready {
     visible: bool,
@@ -389,7 +389,7 @@ impl Ready {
 }
 
 // ---------------------------------------------------------------------------
-// "Game over" text (com.dotgears.flappy.e)
+// "Game over"
 // ---------------------------------------------------------------------------
 struct OverText {
     visible: bool,
@@ -445,7 +445,7 @@ impl OverText {
 }
 
 // ---------------------------------------------------------------------------
-// Score panel (com.dotgears.p)
+// Score panel
 // ---------------------------------------------------------------------------
 struct Panel {
     visible: bool,
@@ -570,7 +570,7 @@ impl Panel {
 }
 
 // ---------------------------------------------------------------------------
-// Medal sparkles (com.dotgears.e / particle pool)
+// Medal sparkles
 // ---------------------------------------------------------------------------
 struct Sparkle {
     active: bool,
@@ -633,7 +633,7 @@ impl Sparkles {
 }
 
 // ---------------------------------------------------------------------------
-// Game scene (com.dotgears.flappy.c)
+// Game scene
 // ---------------------------------------------------------------------------
 struct Game {
     atlas: Atlas,
@@ -713,7 +713,6 @@ impl Game {
         }
     }
 
-    // -- input ------------------------------------------------------------
     fn handle_input(&mut self, tap: bool, release: bool, pos: Vec2) {
         if self.menu {
             if release && self.play_visible && point_in(pos, MENU_PLAY_X, MENU_BTN_Y, 116, 70) {
@@ -753,7 +752,6 @@ impl Game {
         self.sounds.play(Sfx::Swoosh);
     }
 
-    // -- timers -----------------------------------------------------------
     fn handle_timer(&mut self, action: TimerAction) {
         match action {
             TimerAction::MenuInit => {
@@ -818,7 +816,6 @@ impl Game {
         self.ready.show();
     }
 
-    // -- update -----------------------------------------------------------
     fn tick(&mut self) {
         let mut due = Vec::new();
         for timer in &mut self.timers {
@@ -836,7 +833,6 @@ impl Game {
             self.handle_timer(action);
         }
 
-        // ---- scene update (flappy.c.b) ----
         self.land_x -= self.pipe_speed;
         if self.land_x <= -24 {
             self.land_x = 0;
@@ -874,7 +870,6 @@ impl Game {
         self.bird.tick(&self.sin_table);
 
         if !self.menu {
-            // Ground collision
             if self.bird.y >= GROUND_TOP - BIRD_HIT_H && self.pipe_speed > 0 {
                 self.flash.start(1.0, 0.0, 11, 1.0);
                 self.flash.advance();
@@ -886,7 +881,6 @@ impl Game {
                 });
             }
 
-            // Pipe collisions
             if !self.bird.dead && self.pipes_pending <= 0 && self.pipe_speed > 0 {
                 let (p0x, p0y) = self.pipes[0];
                 let (p1x, p1y) = self.pipes[1];
@@ -967,7 +961,6 @@ impl Game {
             self.ready.tick();
         }
 
-        // ---- engine-level updates after the scene (g.b) ----
         if let Some((x, y)) = self.panel.tick(&mut self.rng) {
             self.sparkles.spawn(x, y);
         }
@@ -985,7 +978,6 @@ impl Game {
         self.flash.advance();
     }
 
-    // -- rendering --------------------------------------------------------
     fn draw(&self) {
         let bg = if self.bg_night { "bg_night" } else { "bg_day" };
         self.atlas.draw(bg, 0.0, 0.0, 1.0, 0.0, WHITE);

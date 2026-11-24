@@ -1,6 +1,3 @@
-// Assets are compiled into the binary so the game runs from any working
-// directory on every target.
-
 pub const ATLAS_PNG: &[u8] = include_bytes!("../../../assets/atlas.png");
 pub const ATLAS_TXT: &str = include_str!("../../../assets/atlas.txt");
 

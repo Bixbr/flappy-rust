@@ -129,6 +129,13 @@ name = "flappy-core"
 version = "0.1.0"
 
 [[package]]
+name = "flappy-wiiu"
+version = "0.1.0"
+dependencies = [
+ "flappy-core",
+]
+
+[[package]]
 name = "flate2"
 version = "1.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,9 +1,3 @@
-//! Platform-independent Flappy Bird simulation.
-//!
-//! Rendering, audio and platform input live in the frontends. Physics,
-//! collisions, scoring, timers and UI state transitions are shared by every
-//! platform and run at a fixed 60 Hz step.
-
 use crate::rng::Rng;
 use crate::sin_table::SIN_TABLE;
 
@@ -24,6 +18,7 @@ pub const PIPE_W: i32 = 52;
 pub const PIPE_H: i32 = 320;
 pub const PIPE_GAP: i32 = 96;
 pub const PIPE_SPACING: i32 = 105;
+pub const PIPE_PREVIEW_COUNT: usize = 16;
 
 pub const MENU_PLAY_X: i32 = (288 - (116 + 116 + 16)) / 2;
 pub const MENU_BTN_Y: i32 = 340;
@@ -35,7 +30,6 @@ pub const PANEL_W: i32 = 238;
 pub const PANEL_H: i32 = 126;
 pub const PANEL_FINAL_Y: i32 = (512 - PANEL_H) / 2;
 
-// Sound events emitted by the simulation; frontends drain them each tick.
 pub const EV_WING: u16 = 1 << 0;
 pub const EV_POINT: u16 = 1 << 1;
 pub const EV_HIT: u16 = 1 << 2;
@@ -687,6 +681,18 @@ impl Game {
         core::mem::take(&mut self.events)
     }
 
+    pub fn pipe_previews(&self) -> [i32; PIPE_PREVIEW_COUNT] {
+        let mut rng = Rng {
+            y: self.rng.y,
+            z: self.rng.z,
+        };
+        let mut heights = [0; PIPE_PREVIEW_COUNT];
+        for height in &mut heights {
+            *height = rng.range(180, 360);
+        }
+        heights
+    }
+
     fn emit(&mut self, event: u16) {
         self.events |= event;
     }
@@ -729,7 +735,6 @@ impl Game {
         }
     }
 
-    /// Flap without requiring a menu hit test (controller input).
     pub fn flap(&mut self) {
         let mut wing = false;
         self.bird.flap(&mut wing);
@@ -739,7 +744,6 @@ impl Game {
         }
     }
 
-    /// Start or restart the round from the title menu.
     pub fn activate_play(&mut self) {
         if self.menu || (self.panel.visible && self.panel.state == 2) {
             self.begin_start_game();
@@ -883,12 +887,10 @@ impl Game {
         self.bird.tick();
 
         if !self.menu {
-            // Ground collision
             if self.bird.y >= GROUND_TOP - BIRD_HIT_H && self.pipe_speed > 0 {
                 self.die(false);
             }
 
-            // Pipe collisions
             if !self.bird.dead && self.pipes_pending <= 0 && self.pipe_speed > 0 {
                 let (p0x, p0y) = self.pipes[0];
                 let (p1x, p1y) = self.pipes[1];
@@ -912,7 +914,8 @@ impl Game {
                 }
             }
 
-            if self.panel.visible && self.panel.state == 2 && !self.play_visible {
+            let show_play = self.panel.visible && self.panel.state == 2;
+            if show_play && !core::hint::black_box(self.play_visible) {
                 self.play_visible = true;
                 self.score_visible = true;
             }
@@ -1011,11 +1014,28 @@ mod tests {
     #[test]
     fn scoring_advances_rng_and_collision_stops_pipes() {
         let mut game = start_round(11);
-        // Let the bird fall; it must eventually hit the ground and stop pipes.
         for _ in 0..600 {
             game.tick();
         }
         assert_eq!(game.pipe_speed, 0);
         assert!(game.panel.visible || game.over_text.visible);
+    }
+
+    #[test]
+    fn pipe_preview_matches_the_next_recycle() {
+        let mut game = start_round(42);
+        let previews = game.pipe_previews();
+        let mut first_height = None;
+        for i in 0..400 {
+            if i % 15 == 0 {
+                game.flap();
+            }
+            game.tick();
+            if game.pipes_pending == 0 {
+                first_height = Some(game.pipes[2].1);
+                break;
+            }
+        }
+        assert_eq!(first_height, Some(previews[0]));
     }
 }

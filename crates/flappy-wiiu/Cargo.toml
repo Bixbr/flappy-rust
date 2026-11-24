@@ -1,0 +1,11 @@
+[package]
+name = "flappy-wiiu"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "flappy_wiiu"
+crate-type = ["staticlib"]
+
+[dependencies]
+flappy-core = { path = "../flappy-core" }
