@@ -11,6 +11,7 @@ impl Rng {
         }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> i32 {
         self.z = 36969i32
             .wrapping_mul(self.z & 0xffff)
@@ -23,5 +24,18 @@ impl Rng {
 
     pub fn range(&mut self, min: i32, max: i32) -> i32 {
         (self.next() % (max - min)) + min
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Rng;
+    #[test]
+    fn rng_deterministic() {
+        let mut a = Rng::new(123);
+        let mut b = Rng::new(123);
+        for _ in 0..100 {
+            assert_eq!(a.next(), b.next());
+        }
     }
 }

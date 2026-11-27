@@ -1,3 +1,4 @@
+use crate::assets;
 use macroquad::prelude::*;
 use std::collections::HashMap;
 
@@ -11,20 +12,19 @@ pub struct SpriteRect {
 
 pub struct Atlas {
     pub tex: Texture2D,
+    smooth: Texture2D,
     sprites: HashMap<String, SpriteRect>,
 }
 
 impl Atlas {
     pub async fn load() -> Self {
-        let tex = load_texture("assets/atlas.png")
-            .await
-            .expect("failed to load assets/atlas.png");
+        let tex = Texture2D::from_file_with_format(assets::ATLAS_PNG, Some(ImageFormat::Png));
         tex.set_filter(FilterMode::Nearest);
+        let smooth = Texture2D::from_file_with_format(assets::ATLAS_PNG, Some(ImageFormat::Png));
+        smooth.set_filter(FilterMode::Linear);
 
-        let txt =
-            std::fs::read_to_string("assets/atlas.txt").expect("failed to load assets/atlas.txt");
         let mut sprites = HashMap::new();
-        for line in txt.lines() {
+        for line in assets::ATLAS_TXT.lines() {
             let p: Vec<&str> = line.split_whitespace().collect();
             if p.len() < 7 {
                 continue;
@@ -44,7 +44,11 @@ impl Atlas {
             );
         }
 
-        Self { tex, sprites }
+        Self {
+            tex,
+            smooth,
+            sprites,
+        }
     }
 
     pub fn rect(&self, name: &str) -> SpriteRect {
@@ -59,11 +63,37 @@ impl Atlas {
     }
 
     pub fn draw(&self, name: &str, x: f32, y: f32, scale: f32, rotation_deg: f32, color: Color) {
+        self.draw_tex(&self.tex, name, x, y, scale, rotation_deg, color);
+    }
+
+    pub fn draw_smooth(
+        &self,
+        name: &str,
+        x: f32,
+        y: f32,
+        scale: f32,
+        rotation_deg: f32,
+        color: Color,
+    ) {
+        self.draw_tex(&self.smooth, name, x, y, scale, rotation_deg, color);
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn draw_tex(
+        &self,
+        tex: &Texture2D,
+        name: &str,
+        x: f32,
+        y: f32,
+        scale: f32,
+        rotation_deg: f32,
+        color: Color,
+    ) {
         let r = self.rect(name);
         let w = r.w * scale;
         let h = r.h * scale;
         draw_texture_ex(
-            &self.tex,
+            tex,
             x,
             y,
             color,

@@ -1,0 +1,12 @@
+[lib]
+name = "flappy_app"
+crate-type = ["cdylib", "rlib"]
+
+[package]
+name = "flappy-app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+flappy-core = { path = "../flappy-core" }
+macroquad = { version = "0.4", features = ["audio"] }

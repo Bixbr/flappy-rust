@@ -28,12 +28,14 @@
 /android/.idea/
 /android/local.properties
 /android/app/build/
+/android/build/
 /android/app/src/main/jniLibs/
 
 # Web
 /web/dist/
 /web/node_modules/
 /web/pkg/
+/platforms/web/flappy_app.wasm
 
 # Native build systems
 /cmake-build-*/
@@ -67,3 +69,19 @@ Desktop.ini
 /save/
 /screenshots/
 /recordings/
+
+# Documentation (local)
+/Docs/
+
+# Platform build output
+/platforms/*/target/
+/platforms/wiiu/build/
+/platforms/wiiu/*.wuhb
+/android/app/build/
+/android/.gradle/
+/android/.cxx/
+/web-build/
+/builds/
+/dist/
+/target/
+/releases/
