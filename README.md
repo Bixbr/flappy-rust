@@ -6,6 +6,9 @@ A faithful port of the decompiled Flappy Bird 1.3 APK using
 state machine, score panel and medal thresholds are reproduced from the
 original APK. Ads, Google Play and leaderboard integrations are intentionally
 left out.
+## Important
+
+**No copyrighted material** is provided in the source code, In order to build the game you will NEED to provide your own assets.
 
 ## Controls
 
