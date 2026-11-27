@@ -11,13 +11,13 @@ TARGET="$HERE/powerpc-unknown-none-eabi.json"
 export DEVKITPRO="${DEVKITPRO:-/opt/devkitpro}"
 export DEVKITPPC="${DEVKITPPC:-$DEVKITPRO/devkitPPC}"
 
-mkdir -p "$OUT" "$HERE/assets"
+mkdir -p "$OUT"
 
-if [ ! -f "$HERE/assets/atlas_rgba.bin" ]; then
-    magick "$ROOT/assets/atlas.png" -depth 8 RGBA:"$HERE/assets/atlas_rgba.bin"
+if [ ! -f "$OUT/atlas_rgba.bin" ]; then
+    magick "$ROOT/assets/atlas.png" -depth 8 RGBA:"$OUT/atlas_rgba.bin"
 fi
-(cd "$HERE/assets" && powerpc-eabi-objcopy -I binary -O elf32-powerpc -B powerpc \
-    atlas_rgba.bin "$OUT/atlas_rgba.o")
+(cd "$OUT" && powerpc-eabi-objcopy -I binary -O elf32-powerpc -B powerpc \
+    atlas_rgba.bin atlas_rgba.o)
 
 cd "$ROOT"
 rustup run nightly cargo build -Zjson-target-spec \
@@ -41,7 +41,7 @@ elf2rpl "$OUT/flappy-wiiu-clean.elf" "$OUT/flappy-wiiu.rpx"
 wuhbtool "$OUT/flappy-wiiu.rpx" "$OUT/flappy-wiiu.wuhb" \
     --name="Flappy Rust" --short-name="Flappy Rust" --author="flappy-rust"
 
-mkdir -p "$ROOT/builds"
-cp "$OUT/flappy-wiiu.rpx" "$ROOT/builds/flappy-wiiu.rpx"
-cp "$OUT/flappy-wiiu.wuhb" "$ROOT/builds/flappy-wiiu.wuhb"
-echo "built: $ROOT/builds/flappy-wiiu.wuhb"
+mkdir -p "$ROOT/releases"
+cp "$OUT/flappy-wiiu.rpx" "$ROOT/releases/flappy-wiiu.rpx"
+cp "$OUT/flappy-wiiu.wuhb" "$ROOT/releases/flappy-wiiu.wuhb"
+echo "built: $ROOT/releases/flappy-wiiu.wuhb"

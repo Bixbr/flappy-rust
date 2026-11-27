@@ -316,7 +316,7 @@ static void tap(void) {
 }
 
 int main(int argc, char **argv) {
-    Uint32 tick;
+    Uint32 tick = SDL_GetTicks();
     int running = 1;
     int prev_a = 0, prev_start = 0, prev_up = 0, prev_r = 0;
     SDL_Event e;

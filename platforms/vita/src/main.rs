@@ -20,11 +20,9 @@ const SCALE: f32 = SCREEN_H / 512.0;
 const OFFSET_X: f32 = (SCREEN_W - 288.0 * SCALE) * 0.5;
 const DEG_TO_RAD: f32 = 0.017453293;
 
-const SCE_CTRL_SELECT: u32 = 0x0000_0001;
 const SCE_CTRL_START: u32 = 0x0000_0008;
 const SCE_CTRL_UP: u32 = 0x0000_0010;
 const SCE_CTRL_RTRIGGER: u32 = 0x0000_0200;
-const SCE_CTRL_CIRCLE: u32 = 0x0000_2000;
 const SCE_CTRL_CROSS: u32 = 0x0000_4000;
 
 const BIRD_NAMES: [[&str; 3]; 3] = [
@@ -94,7 +92,6 @@ struct SceTouchData {
 
 extern "C" {
     fn vita2d_init() -> c_int;
-    fn vita2d_fini();
     fn vita2d_clear_screen();
     fn vita2d_start_drawing();
     fn vita2d_end_drawing();
@@ -480,10 +477,6 @@ pub extern "C" fn main() -> c_int {
                     } else {
                         game.handle_input(true, false, Point::new(0.0, 0.0));
                     }
-                }
-                if pressed & SCE_CTRL_CIRCLE != 0
-                    || (pad.buttons & SCE_CTRL_SELECT != 0 && pad.buttons & SCE_CTRL_RTRIGGER != 0)
-                {
                 }
             }
             let mut touch: SceTouchData = zeroed();
